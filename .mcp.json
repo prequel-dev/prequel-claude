@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "prequel": {
+      "type": "http",
+      "url": "https://mcp-${user_config.environment}.prequel.dev",
+      "headers": {
+        "Authorization": "Bearer ${user_config.jwt_token}"
+      }
+    }
+  }
+}
