@@ -11,17 +11,37 @@ The plugin registers a single remote MCP server (`prequel`) whose URL is selecte
 
 Authentication is a Bearer JWT sent in the `Authorization` header.
 
+## Installation
+
+From inside Claude Code:
+
+```
+/plugin marketplace add prequel-dev/prequel-claude
+/plugin install prequel@prequel
+```
+
+The first command registers this repo as a marketplace (the marketplace's `name` is `prequel`, defined in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json)). The second installs the `prequel` plugin from it.
+
+On install, Claude Code prompts for the two `userConfig` values: `environment` (`dev` or `prod`) and `jwt_token`. The token is stored as a sensitive credential — see [Configuration storage](#how-configuration-is-stored) below.
+
+To pull in updates after the upstream repo changes:
+
+```
+/plugin marketplace update prequel
+```
+
 ## Layout
 
 ```
 prequel-claude/
 ├── .claude-plugin/
-│   └── plugin.json      # manifest + userConfig (environment, jwt_token)
-├── .mcp.json            # HTTP MCP server with Bearer auth
+│   ├── plugin.json        # manifest + userConfig (environment, jwt_token)
+│   └── marketplace.json   # marketplace catalog (one plugin: prequel)
+├── .mcp.json              # HTTP MCP server with Bearer auth
 └── commands/
-    ├── configure.md     # /prequel:configure
-    ├── status.md        # /prequel:status
-    └── tools.md         # /prequel:tools
+    ├── configure.md       # /prequel:configure
+    ├── status.md          # /prequel:status
+    └── tools.md           # /prequel:tools
 ```
 
 ## Testing the plugin

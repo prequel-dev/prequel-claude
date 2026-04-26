@@ -1,0 +1,17 @@
+{
+  "name": "prequel",
+  "owner": {
+    "name": "Aleksandr Maus",
+    "email": "aleks@prequel.dev"
+  },
+  "metadata": {
+    "description": "Prequel MCP server tooling for Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "prequel",
+      "source": "./",
+      "description": "Work with Prequel MCP servers (dev/prod) over HTTP with JWT authentication."
+    }
+  ]
+}
