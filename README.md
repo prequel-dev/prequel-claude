@@ -1,13 +1,12 @@
-# prequel
+# Prequel Claude Code plugin
 
-A Claude Code plugin for working with the Prequel MCP servers over HTTP with JWT authentication.
+A Claude Code plugin for working with the Prequel MCP server over HTTP with JWT authentication.
 
-The plugin registers a single remote MCP server (`prequel`) whose URL is selected by environment:
+The plugin registers a single remote MCP server (`prequel`) at:
 
-| Environment | URL                            |
-| ----------- | ------------------------------ |
-| `dev`       | https://mcp-dev.prequel.dev    |
-| `prod`      | https://mcp-beta.prequel.dev   |
+```
+https://mcp-beta.prequel.dev
+```
 
 Authentication is a Bearer JWT sent in the `Authorization` header.
 
@@ -22,9 +21,9 @@ From inside Claude Code:
 
 The first command registers this repo as a marketplace (the marketplace's `name` is `prequel`, defined in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json)). The second installs the `prequel` plugin from it.
 
-On install, Claude Code prompts for the two `userConfig` values: `environment` (`dev` or `prod`) and `jwt_token`. The token is stored as a sensitive credential — see [Configuration storage](#how-configuration-is-stored) below.
+On install, Claude Code prompts for the one `userConfig` value: `jwt_token`. The token is stored as a sensitive credential — see [Configuration storage](#how-configuration-is-stored) below.
 
-The `jwt_token` can be created through the web UI: https://app-beta.prequel.dev/api-tokens (or https://app-dev.prequel.dev/api-tokens for development environment).
+The `jwt_token` can be created through the web UI: https://app-beta.prequel.dev/api-tokens.
 
 Choose the `"viewer"` role for the token, this is sufficient for MCP and the plugin functionality.
 
@@ -39,7 +38,7 @@ To pull in updates after the upstream repo changes:
 ```
 prequel-claude/
 ├── .claude-plugin/
-│   ├── plugin.json        # manifest + userConfig (environment, jwt_token)
+│   ├── plugin.json        # manifest + userConfig (jwt_token)
 │   └── marketplace.json   # marketplace catalog (one plugin: prequel)
 ├── .mcp.json              # HTTP MCP server with Bearer auth
 └── commands/
@@ -58,7 +57,7 @@ You have two options for running the plugin against a local checkout.
 claude --plugin-dir ./prequel-claude
 ```
 
-Claude Code loads the plugin for that session only and prompts for `environment` and `jwt_token` on first use.
+Claude Code loads the plugin for that session only and prompts for `jwt_token` on first use.
 
 ### Option 2: register as a local plugin
 
@@ -66,16 +65,15 @@ From inside Claude Code:
 
 1. Run `/plugin`.
 2. Add a local plugin pointing at this directory.
-3. Enable it. Claude Code prompts for `environment` (`dev` or `prod`) and `jwt_token`.
+3. Enable it. Claude Code prompts for `jwt_token`.
 4. Verify the MCP server is connected with `/prequel:status`.
 
 After editing any plugin file (manifest, `.mcp.json`, commands) run `/reload-plugins` to pick up changes without restarting the session.
 
 ### Smoke test checklist
 
-- `/prequel:status` reports the active environment and at least one MCP tool.
+- `/prequel:status` reports at least one MCP tool.
 - `/prequel:tools` lists the tools the server exposes.
-- Switching `environment` via `/plugin` and reloading flips the URL the MCP client connects to (you can confirm with `/prequel:status`).
 - An invalid or expired JWT yields a connection error and zero tools — fix by updating the token through `/plugin`.
 
 ## Using the plugin
@@ -88,41 +86,16 @@ Once configured, the `prequel` MCP server's tools become available to Claude und
 | Command              | What it does                                                         |
 | -------------------- | -------------------------------------------------------------------- |
 | `/prequel:configure` | Explains how to view and change the plugin's configuration.          |
-| `/prequel:status`    | Verifies the MCP server is reachable and reports the active env.    |
+| `/prequel:status`    | Verifies the MCP server is reachable and reports tool availability. |
 | `/prequel:tools`     | Lists and describes the MCP tools currently exposed by the server.  |
 
 Slash commands are namespaced with the plugin name, so `/prequel:status` will not collide with other plugins.
 
 ## How configuration is stored
 
-The plugin declares two `userConfig` options in [.claude-plugin/plugin.json](.claude-plugin/plugin.json):
+The plugin declares one `userConfig` option in [.claude-plugin/plugin.json](.claude-plugin/plugin.json):
 
-- `environment` — string, **not sensitive**.
 - `jwt_token` — string, marked `sensitive: true`.
-
-These two values are stored in different places.
-
-### `environment` → `settings.json`
-
-Plain text, readable on disk:
-
-```json
-// ~/.claude/settings.json (user scope) or .claude/settings.json (project scope)
-{
-  "pluginConfigs": {
-    "prequel": {
-      "options": {
-        "environment": "prod"
-      }
-    }
-  }
-}
-```
-
-The exact file depends on which scope the plugin was enabled in:
-
-- User scope: `~/.claude/settings.json`
-- Project scope: `<repo>/.claude/settings.json` or `.claude/settings.local.json`
 
 ### `jwt_token` → OS keychain
 
@@ -132,16 +105,16 @@ Because `sensitive: true` is set, the token is **not** written to `settings.json
 - **Linux** — Secret Service / libsecret (GNOME Keyring, KWallet, etc).
 - **Fallback** — if no keychain is available, `~/.claude/.credentials.json` with file mode `600`.
 
-### How the values reach the MCP server
+### How the value reaches the MCP server
 
-[.mcp.json](.mcp.json) references both options via the `${user_config.<key>}` substitution syntax:
+[.mcp.json](.mcp.json) references the token via the `${user_config.<key>}` substitution syntax:
 
 ```json
 {
   "mcpServers": {
     "prequel": {
       "type": "http",
-      "url": "https://mcp-${user_config.environment}.prequel.dev",
+      "url": "https://mcp-beta.prequel.dev",
       "headers": {
         "Authorization": "Bearer ${user_config.jwt_token}"
       }
@@ -150,12 +123,11 @@ Because `sensitive: true` is set, the token is **not** written to `settings.json
 }
 ```
 
-Substitution happens at plugin load time. The `environment` value is read from `settings.json`; the `jwt_token` is fetched out of the keychain. The token never lands on disk in `settings.json`.
+Substitution happens at plugin load time. The `jwt_token` is fetched out of the keychain — it never lands on disk in `settings.json`.
 
 ### Changing or clearing the configuration
 
 - **Recommended:** run `/plugin`, select **prequel**, and edit the user configuration. Run `/reload-plugins` afterwards.
-- **Manual (env only):** edit `pluginConfigs.prequel.options.environment` in the relevant `settings.json` and reload.
-- **Manual (token):** update the entry in your OS keychain (or in `~/.claude/.credentials.json` on the fallback path), then reload.
+- **Manual:** update the token entry in your OS keychain (or in `~/.claude/.credentials.json` on the fallback path), then reload.
 
 To remove the plugin's stored configuration entirely, disable the plugin via `/plugin` — that removes the `pluginConfigs.prequel` block from `settings.json` and the keychain entry.

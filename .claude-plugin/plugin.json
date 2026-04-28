@@ -1,24 +1,17 @@
 {
   "name": "prequel",
   "version": "0.1.0",
-  "description": "Work with Prequel MCP servers (development and production environments) over HTTP with JWT authentication.",
+  "description": "Work with the Prequel MCP server over HTTP with JWT authentication.",
   "author": {
     "name": "Aleksandr Maus",
     "email": "aleks@prequel.dev"
   },
   "keywords": ["prequel", "mcp", "http", "jwt"],
   "userConfig": {
-    "environment": {
-      "type": "string",
-      "title": "Prequel Environment",
-      "description": "Which Prequel MCP environment to connect to. Use 'dev' for the development server (https://mcp-dev.prequel.dev) or 'prod' for the production server (https://mcp-beta.prequel.dev).",
-      "default": "prod",
-      "required": true
-    },
     "jwt_token": {
       "type": "string",
       "title": "JWT Bearer Token",
-      "description": "Bearer JWT token used to authenticate against the Prequel MCP server. Sent as the Authorization header.",
+      "description": "Bearer JWT token used to authenticate against the Prequel MCP server (https://mcp-beta.prequel.dev). Sent as the Authorization header.",
       "sensitive": true,
       "required": true
     }

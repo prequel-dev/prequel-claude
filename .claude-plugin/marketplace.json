@@ -11,7 +11,7 @@
     {
       "name": "prequel",
       "source": "./",
-      "description": "Work with Prequel MCP servers (dev/prod) over HTTP with JWT authentication."
+      "description": "Work with the Prequel MCP server over HTTP with JWT authentication."
     }
   ]
 }
