@@ -24,6 +24,8 @@ The first command registers this repo as a marketplace (the marketplace's `name`
 
 On install, Claude Code prompts for the two `userConfig` values: `environment` (`dev` or `prod`) and `jwt_token`. The token is stored as a sensitive credential — see [Configuration storage](#how-configuration-is-stored) below.
 
+The `jwt_token` can be created through the web UI: https://app-beta.prequel.dev/api-tokens 
+
 To pull in updates after the upstream repo changes:
 
 ```
@@ -51,7 +53,7 @@ You have two options for running the plugin against a local checkout.
 ### Option 1: launch Claude Code with `--plugin-dir`
 
 ```sh
-claude --plugin-dir /Users/amaus/prequel/git/prequel-claude
+claude --plugin-dir ./prequel-claude
 ```
 
 Claude Code loads the plugin for that session only and prompts for `environment` and `jwt_token` on first use.
