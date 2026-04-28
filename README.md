@@ -24,7 +24,7 @@ The first command registers this repo as a marketplace (the marketplace's `name`
 
 On install, Claude Code prompts for the two `userConfig` values: `environment` (`dev` or `prod`) and `jwt_token`. The token is stored as a sensitive credential — see [Configuration storage](#how-configuration-is-stored) below.
 
-The `jwt_token` can be created through the web UI: https://app-beta.prequel.dev/api-tokens.
+The `jwt_token` can be created through the web UI: https://app-beta.prequel.dev/api-tokens (or https://app-dev.prequel.dev/api-tokens for development environment).
 
 Choose the `"viewer"` role for the token, this is sufficient for MCP and the plugin functionality.
 
